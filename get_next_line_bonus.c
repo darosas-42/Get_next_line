@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static char	*cleaner(char *static_str)
 {
@@ -95,45 +95,70 @@ static char	*read_all(int fd, char *static_str)
 
 char	*get_next_line(int fd)
 {
-	static char	*static_str;
+	static char	*static_str[1024];
 	char		*good_line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	if (read(fd, 0, 0) < 0)
 	{
-		if (static_str != NULL)
+		if (static_str[fd] != NULL)
 		{
-			free(static_str);
-			static_str = NULL;
+			free(static_str[fd]);
+			static_str[fd] = NULL;
 		}
 		return (NULL);
 	}
-	static_str = read_all(fd, static_str);
-	if (static_str == NULL)
-		return (free(static_str), static_str = NULL, NULL);
-	good_line = get_good_line(static_str);
+	static_str[fd] = read_all(fd, static_str[fd]);
+	if (static_str[fd] == NULL)
+		return (free(static_str[fd]), static_str[fd] = NULL, NULL);
+	good_line = get_good_line(static_str[fd]);
 	if (good_line == NULL)
-		return (free(static_str), static_str = NULL, NULL);
-	static_str = cleaner(static_str);
-	if (static_str == NULL)
-		return (free(static_str), static_str = NULL, good_line);
+		return (free(static_str[fd]), static_str[fd] = NULL, NULL);
+	static_str[fd] = cleaner(static_str[fd]);
+	if (static_str[fd] == NULL)
+		return (free(static_str[fd]), static_str[fd] = NULL, good_line);
 	return (good_line);
 }
 
-/* int main()
+/* int	main(void)
 {
-	int		archive;
+	int		fichero1;
+	int		fichero2;
+	int		fichero3;
 	char	*line;
 
-	archive = open("archivo.txt", O_RDONLY);
-	line = get_next_line(archive);
+	fichero1 = open("archivo.txt", 0);
+	fichero2 = open("archivo2.txt", O_RDONLY);
+	fichero3 = open("archivo3.txt", O_RDONLY);
+	line = get_next_line(fichero1);
 	while (line != NULL)
 	{
 		printf("%s", line);
 		free(line);
-		line = get_next_line(archive);
+		line = get_next_line(fichero1);
 	}
 	free(line);
-	close(archive);
+	printf("\n\n");
+	line = get_next_line(fichero2);
+	while (line != NULL)
+	{
+		printf("%s", line);
+		free(line);
+		line = get_next_line(fichero2);
+	}
+	free(line);
+	printf("\n\n");
+	line = get_next_line(fichero3);
+	while (line != NULL)
+	{
+		printf("%s", line);
+		free(line);
+		line = get_next_line(fichero3);
+	}
+	printf("\n\n");
+	close(fichero1);
+	close(fichero2);
+	close(fichero3);
+	free(line);
 } */
