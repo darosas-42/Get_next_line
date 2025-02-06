@@ -81,6 +81,8 @@ static char	*read_all(int fd, char *static_str)
 		reader = read(fd, temp, BUFFER_SIZE);
 		if (reader < 0)
 		{
+			free(static_str);
+			static_str = NULL;
 			free(temp);
 			return (NULL);
 		}
@@ -100,18 +102,9 @@ char	*get_next_line(int fd)
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	if (read(fd, 0, 0) < 0)
-	{
-		if (static_str[fd] != NULL)
-		{
-			free(static_str[fd]);
-			static_str[fd] = NULL;
-		}
-		return (NULL);
-	}
 	static_str[fd] = read_all(fd, static_str[fd]);
 	if (static_str[fd] == NULL)
-		return (free(static_str[fd]), static_str[fd] = NULL, NULL);
+		return (NULL);
 	good_line = get_good_line(static_str[fd]);
 	if (good_line == NULL)
 		return (free(static_str[fd]), static_str[fd] = NULL, NULL);
